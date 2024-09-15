@@ -281,8 +281,9 @@ void loop() {
   lcd.print(secs);
 
   //Check button state
-  boolean_button = (digitalRead(buttonPin) == HIGH);
-  if (boolean_button){
+  //boolean_button = (digitalRead(buttonPin) == HIGH);
+  boolean_touch = (digitalRead(touchpadPin) == HIGH); 
+  if (boolean_touch){
     if (i == 0) {
       //Normal Mode
       lcd.setRGB (255, 255, 255); //Set to white background
@@ -330,7 +331,7 @@ void loop() {
       
     }
 
-    boolean_button = false;
+    boolean_touch = false;
   }
   delay(1000); // Update the time every second
   lcd.clear(); // Clear the display for the next update

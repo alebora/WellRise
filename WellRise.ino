@@ -15,10 +15,18 @@ int umin = 0;
 int tmin = 0;
 int uhrs = 0;
 int thrs = 0;
+int i = 0;
+int j = 0;
+int timeValues[1];
  
 
 //Create the setup
 void setup() {
+  Serial.begin(9600);
+  // Serial.begin(115200);
+  //Serial.print("test");
+
+
   lcd.begin (16,2); //Set LCD with 16 col &2 rows
   lcd.setRGB (255, 255, 255); //Set to white background
 
@@ -37,10 +45,13 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("Time:00:00:0");
   lcd.print(usec);
+ 
+
 }
 
 
 void loop() {
+  //Serial.print("Test");
   // Read button and touchpad states
   bool boolean_button = (digitalRead(buttonPin) == HIGH);
   bool boolean_touch = (digitalRead(touchpadPin) == HIGH);
@@ -81,7 +92,7 @@ void loop() {
     // Increment tsec
     if (boolean_touch) {
         tsec++;
-        if (tsec > 9) {
+        if (tsec > 6) {
           tsec = 0;
         }
     }
@@ -142,7 +153,7 @@ void loop() {
       // Increment tsec
       if (boolean_touch) {
           tmin++;
-          if (tmin > 9) {
+          if (tmin > 6) {
             tmin = 0;
           }
       }
@@ -199,7 +210,7 @@ void loop() {
       boolean_touch = (digitalRead(touchpadPin) == HIGH); 
     }
 
-        boolean_button = false;
+    boolean_button = false;
     boolean_button = (digitalRead(buttonPin) == HIGH);
     boolean_touch = (digitalRead(touchpadPin) == HIGH);
 
@@ -208,7 +219,7 @@ void loop() {
       // Increment tsec
       if (boolean_touch) {
           thrs++;
-          if (thrs > 9) {
+          if (thrs > 2) {
             thrs = 0;
           }
       }
@@ -228,10 +239,101 @@ void loop() {
 
       // Check button and touchpad states again
       if (boolean_button = (digitalRead(buttonPin) == HIGH)){
-        lcd.setRGB (255, 0, 255); //Fuchsia
+        lcd.setRGB (255, 255, 255); //Set to white background
         delay(500);
       };
       boolean_touch = (digitalRead(touchpadPin) == HIGH); 
     }
+
+
+    //Now that all the variables hold the variables use the function of time to display it
+    int combinedHours = thrs * 10 + uhrs;
+    int combinedMinutes = tmin * 10 + umin;
+    int combinedSeconds = tsec * 10 + usec;
+    setTime(combinedHours, combinedMinutes, combinedSeconds,1,1,2024);
+
+  //While loops to run the time infinitely
+  while(true){
+    // Get the current time
+  int hrs = hour();
+  int mins = minute();
+  int secs = second();
+
+  // Format and display the time + changing color to dark purple
+  lcd.setCursor(0, 0);
+  lcd.print("Time: ");
+
+  if (hrs < 10) {
+    lcd.print('0'); // Leading zero for single-digit hours
+  }; 
+  lcd.print(hrs);
+  lcd.print(':');
+
+  if (mins < 10) {
+    lcd.print('0'); // Leading zero for single-digit minutes
+  }
+  lcd.print(mins);
+  lcd.print(':');
+
+  if (secs < 10) {
+    lcd.print('0'); // Leading zero for single-digit seconds
+  }
+  lcd.print(secs);
+
+  //Check button state
+  boolean_button = (digitalRead(buttonPin) == HIGH);
+  if (boolean_button){
+    if (i == 0) {
+      //Normal Mode
+      lcd.setRGB (255, 255, 255); //Set to white background
+      lcd.setCursor(2,1);
+      lcd.print("Hello!");
+      i = 1;
+    }
+    else if (i == 1){
+      //Sleep Mode
+      lcd.setRGB(48,25,52); //Dark purple
+      lcd.setCursor(2,1);
+      lcd.print("Good Night!");
+      i = 0;
+    }
+    time_t currentTime = now(); //get the current time as hh:mm:ss
+    
+    if (j == 1) {
+      timeValues[0] = currentTime; //Time when you go to bed
+      int hours = hour(currentTime);
+      int minutes = minute(currentTime);
+      int seconds = second(currentTime);
+
+    // Format the time as hh:mm:ss
+    String formattedTime = String(hours) + ":" + String(minutes) + ":" + String(seconds);
+    Serial.print(formattedTime);
+    }
+    if (j == 2) {
+      timeValues[1] = currentTime; //Time when you are awake
+      int hours = hour(currentTime);
+      int minutes = minute(currentTime);
+      int seconds = second(currentTime);
+
+    // Format the time as hh:mm:ss
+    String formattedTime = String(hours) + ":" + String(minutes) + ":" + String(seconds);
+    Serial.print(formattedTime);
+    }
+    j++;
+
+    //for (int index = 0; index < )
+      //Serial.print(timeValues);
+
+    if (j>2){
+      j = 1;
+      //SEND THROUGH JASON THE ARRAY timeValues
+      
+    }
+
+    boolean_button = false;
+  }
+  delay(1000); // Update the time every second
+  lcd.clear(); // Clear the display for the next update
+  }
 
 }
